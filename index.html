@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cloud File Upload</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      margin-top: 50px;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      background: white;
+      padding: 20px;
+      width: 300px;
+      margin: auto;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #preview {
+      margin-top: 15px;
+      max-width: 100%;
+      display: none;
+    }
+
+    #status {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    #fileCount {
+      margin-top: 10px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Upload File</h2>
+
+  <!-- File Input -->
+  <input type="file" id="file" onchange="previewFile()">
+
+  <!-- Upload Button -->
+  <button onclick="uploadFile()">Upload</button>
+
+  <!-- Status -->
+  <p id="status"></p>
+
+  <!-- File Count -->
+  <p id="fileCount">Total uploads: 0</p>
+
+  <!-- Preview -->
+  <img id="preview">
+
+</div>
+
+<script>
+
+let count = 0;
+
+// 🔍 Preview selected file
+function previewFile() {
+  const file = document.getElementById("file").files[0];
+  const preview = document.getElementById("preview");
+
+  if (file) {
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  }
+}
+
+// 🚀 Upload function
+function uploadFile() {
+
+  const file = document.getElementById("file").files[0];
+
+  if (!file) {
+    document.getElementById("status").innerText = "⚠️ Please select a file!";
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  // 🔴 IMPORTANT: Replace with your upload preset
+  formData.append("upload_preset", "fileupload");
+
+  document.getElementById("status").innerText = "Uploading... ⏳";
+
+  fetch("https://api.cloudinary.com/v1_1/dputs6t7l/upload", {
+    method: "POST",
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    count++;
+
+    document.getElementById("status").innerText =
+      "✅ Upload Successful!";
+
+    document.getElementById("fileCount").innerText =
+      "Total uploads: " + count;
+
+    console.log("File URL:", data.secure_url);
+  })
+  .catch(error => {
+    document.getElementById("status").innerText =
+      "❌ Upload Failed!";
+  });
+}
+
+</script>
+
+</body>
+</html>
